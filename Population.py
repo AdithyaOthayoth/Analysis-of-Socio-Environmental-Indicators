@@ -37,21 +37,10 @@ def barGraph(df,columns, xlabel, ylabel, title):
 #A function to plot the line graph
 def linegraph(df,columns, xlabel, ylabel, title): 
     """
-    The linegraph function used to plot line grpah.
+    The linegraph function is used to plot line grpah.
     The plot represents the total percentage of Co2 emissions from solid fuel consumption
-    in each selected contries   
+    percentage and the Arable land Percentage in each selected contries   
     """
-    df = df.loc[:, ['Country Name','1965', '1975', '1985', '1995', '2005', '2015']].reset_index(drop=True).fillna(0.0)
-    df=df.set_index('Country Name').transpose()
-    df['Years'] = df.index
-    temp_cols=df.columns.tolist()
-    new_cols=temp_cols[-1:] + temp_cols[:-1]
-    df=df[new_cols]
-    df=df.reset_index(drop=True)
-    df= df.rename_axis(None, axis=1)
-
-    labels = df['Years']
-    print(columns)
     x=df['Years']
     i=0
     plt.figure()
@@ -65,45 +54,77 @@ def linegraph(df,columns, xlabel, ylabel, title):
     plt.show()    
 
 
+def piegraph(df):
+    
+    """
+    The piegraph function is used to plot pie chart. 
+    The pie graph represents the mean of population growth in each selected
+    countries.
+    """ 
+    plt.figure()
+    df.groupby(['Country Name']).sum().plot(
+    kind='pie', y='Population', autopct='%1.0f%%',startangle=180)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True, ncol=6)
+    plt.title('Mean population growth')
+    plt.show()
+
+#A function to create a dataframe with average of population growth in each country
+def FindAverage(df):
+    
+    """
+    The FindAverage function is used to find the mean of population growth
+    in each countries.
+    """
+    Countries = df["Country Name"]
+    for c in Countries:
+        df['Population']=df.mean(axis=1)
+    df=df.loc[:, ['Country Name','Population']].reset_index(drop=True)
+    print(df)
+    piegraph(df)
+
+#reading the data set 
+def ReadandReturnData(filename,indicatorName):
+    
+    """
+    The ReadandReturnData function is used to read the filename and 
+    indicator name to return two dataframe df1 and df2, one with 
+    countries as column(df1) and the other with years as column(df2).
+    """
+    Data = pd.read_csv(filename,sep='\t',skiprows=4,engine='python')
+    df_Data = pd.DataFrame(Data)
+    df1= df_Data.loc[df_Data['Indicator Name'].isin([indicatorName])]
+    df1 = df1.loc[df1['Country Code'].isin(['CUB','BRA','IND','ARG','DZA','CHN'])]
+    df1 = df1.loc[:, ['Country Name','1965', '1975', '1985', '1995', '2005', '2015']].reset_index(drop=True).fillna(0.0)
+    df2=df1.set_index('Country Name').transpose()
+    df2['Years'] = df2.index
+    temp_cols=df2.columns.tolist()
+    new_cols=temp_cols[-1:] + temp_cols[:-1]
+    df2=df2[new_cols]
+    df2=df2.reset_index(drop=True)
+    df2= df2.rename_axis(None, axis=1)
+    return df1,df2    
 
 
-#reading the data set    
-dataloc="Dataset.csv"
-Data = pd.read_csv("Dataset.csv",sep='\t',skiprows=4,engine='python')
-df_Data = pd.DataFrame(Data)
-
-#Choosing indicator (Urban population (% of total population)) and updating dataframe according to that
-urbanPopulation = df_Data.loc[df_Data['Indicator Name'].isin(["Urban population (% of total population)"])]
-df_urbanPopulation = urbanPopulation.dropna()
-df_urbanPopulationSelected = df_urbanPopulation.loc[df_urbanPopulation['Country Code'].isin(['HUN','BRA','IND','ARG','HRV','CHN'])]
-df_population = df_urbanPopulationSelected.loc[:, ['Country Name','1965', '1975', '1985', '1995', '2005', '2015']].reset_index(drop=True)
-
-#Choosing indicator (Agricultural land (% of land area)) and updating dataframe according to that
-df_agriculturalLand = df_Data.loc[df_Data['Indicator Name'].isin(["Agricultural land (% of land area)"])]
-df_agriculturalLandSelected = df_agriculturalLand.loc[df_agriculturalLand['Country Code'].isin(['HUN','BRA','IND','ARG','HRV','CHN'])]
-df_agriculturalLand = df_agriculturalLandSelected.loc[:, ['Country Name','1965', '1975', '1985', '1995', '2005', '2015']].reset_index(drop=True)
+#reading data set
+filename = "Dataset.csv"
 years=['1965','1975','1985','1995','2005','2015']
+Countries=['Cuba','Argentina','Brazil','China','Algeria','India']
 
-
-#Choosing indicator (Agricultural land (% of land area)) and updating dataframe according to that
-df_Co2emmission = df_Data.loc[df_Data['Indicator Name'].isin(["CO2 emissions from solid fuel consumption (% of total)"])]
-df_Co2emmission = df_Co2emmission.loc[df_Co2emmission['Country Code'].isin(['HUN','BRA','IND','ARG','HRV','CHN'])]
-Countries=['Hungary','Argentina','Brazil','China','Croatia','India']
-
-#Choosing indicator (Agricultural land (% of land area)) and updating dataframe according to that
-df_Arable = df_Data.loc[df_Data['Indicator Name'].isin(["Arable land (% of land area)"])]
-df_Arable = df_Arable.loc[df_Arable['Country Code'].isin(['HUN','BRA','IND','ARG','HRV','CHN'])]
-Countries=['Hungary','Argentina','Brazil','China','Croatia','India']
+#Calling function to create dataframe according to the indicators
+df_urbanPopulation,df_urbanPopTrans=ReadandReturnData(filename,"Urban population (% of total population)")
+df_AgriculturalLand,df_AgriculturalLandTrans=ReadandReturnData(filename,"Agricultural land (% of land area)")
+df_CO2Emissions,df_CO2EmissionsTrans=ReadandReturnData(filename,"CO2 emissions from solid fuel consumption (% of total)")
+df_ArableLand,df_ArableLandTrans=ReadandReturnData(filename,"Arable land (% of land area)")
+df_Population,df_PopulationTrans=ReadandReturnData(filename,"Population growth (annual %)")
 
 #Calling functions to plot the grpahs
-barGraph(df_population,years,'Country','Population Percentage','Urban population (% of total population)')
-barGraph(df_agriculturalLand,years,'Country','Agricultural land Area Percentage','Agricultural land (% of land area)')
-linegraph(df_Co2emmission,Countries,'Year','CO2 Emission Percentage','CO2 emissions from solid fuel consumption (% of total)')
-linegraph(df_Arable,Countries,'Year','Arable land Percentage','Arable land (% of land area)')
+barGraph(df_urbanPopulation,years,'Country','Population Percentage','Urban population (% of total population)')
+barGraph(df_AgriculturalLand,years,'Country','Agricultural land Area Percentage','Agricultural land (% of land area)')
+linegraph(df_CO2EmissionsTrans,Countries,'Year','CO2 Emission Percentage','CO2 emissions from solid fuel consumption (% of total)')
+linegraph(df_ArableLandTrans,Countries,'Year','Arable land Percentage','Arable land (% of land area)')
 
-
-
-
+#Calling function find the mean of population growth
+FindAverage(df_Population)
 
 
 
