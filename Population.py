@@ -9,12 +9,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+"""
+A code to visualise the population and agricultural area
+during the time span of 1965 to 2015.
+"""
+
 #A function to plot the bar graph  
 def barGraph(df, columns, xlabel, ylabel, title):
     """
-    The function bargraph() is used to plot a bar graph representing the percentage of people
-    living in the urban area in each selected country,and the effect of urbanisation in the agricultural 
-    land during the period of 1965 to 2015.
+    The function bargraph() is used to plot a bar graph
+    representing the percentage of people living in the 
+    urban area in each selected country,and the effect of 
+    urbanisation in the agricultural land during the period of 1965 to 2015.
     """    
     labels = df["Country Name"]
     x = np.arange(len(labels))
@@ -29,8 +35,8 @@ def barGraph(df, columns, xlabel, ylabel, title):
     ax.set_xlabel(xlabel)
     ax.set_title(title)
     ax.set_xticks(x, labels)
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2), 
-              fancybox=True, shadow=True, ncol=6)    
+    ax.legend(loc = 'upper center', bbox_to_anchor = (0.5, -0.2), 
+              fancybox = True, shadow = True, ncol = 6)    
     fig.tight_layout()  
     plt.show()
 
@@ -40,16 +46,16 @@ def linegraph(df, columns, xlabel, ylabel, title):
     """
     The linegraph function is used to plot line grpah.
     The plot represents the total percentage of Co2 emissions from solid fuel consumption
-    percentage and the Arable land Percentage in each selected contries   
+    percentage and the Arable land Percentage in each selected contries.   
     """
     x = df['Years']
     i = 0
     plt.figure()
     for y in columns:
         plt.plot(x, df[y], linestyle = 'dashed', label = y)
-        i=i+1   
+        i = i+1   
     plt.legend(loc = 'upper center', bbox_to_anchor = (0.5, -0.2),
-               fancybox=True, shadow=True, ncol=6)
+               fancybox = True, shadow = True, ncol = 6)
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
@@ -65,9 +71,9 @@ def piegraph(df):
     """ 
     plt.figure()
     df.groupby(['Country Name']).sum().plot(
-    kind='pie', y = 'Population', autopct = '%1.0f%%', startangle = 180)
+    kind = 'pie', y = 'Population', autopct = '%1.0f%%', startangle = 180)
     plt.legend(loc = 'upper center', bbox_to_anchor = (0.5, -0.05),
-               fancybox=True, shadow=True, ncol=6)
+               fancybox = True, shadow = True, ncol = 6)
     plt.title('Mean population growth')
     plt.show()
 
@@ -81,8 +87,8 @@ def FindMean(df):
     """
     Countries = df["Country Name"]
     for c in Countries:
-        df['Population']=df.mean(axis=1)
-    df=df.loc[:, ['Country Name', 'Population']].reset_index(drop=True)
+        df['Population'] = df.mean(axis = 1)
+    df=df.loc[:, ['Country Name', 'Population']].reset_index(drop = True)
     print(df)
     piegraph(df)
 
@@ -97,23 +103,24 @@ def ReadandReturnData(filename,indicatorName):
     """
     Data = pd.read_csv(filename,sep='\t',skiprows=4,engine='python')
     df_Data = pd.DataFrame(Data)
-    df1= df_Data.loc[df_Data['Indicator Name'].isin([indicatorName])]
-    df1 = df1.loc[df1['Country Code'].isin(['CUB','BRA', 'FIN','ARG','IND','CHN'])]
-    df1 = df1.loc[:, ['Country Name','1965', '1975', '1985', '1995', '2005', '2015']].reset_index(drop=True).fillna(0.0)
-    df2=df1.set_index('Country Name').transpose()
+    df1 = df_Data.loc[df_Data['Indicator Name'].isin([indicatorName])]
+    df1 = df1.loc[df1['Country Code'].isin(['CUB', 'BRA', 'FIN', 'ARG', 'IND', 'CHN'])]
+    df1 = df1.loc[:, ['Country Name', '1965', '1975',
+                      '1985', '1995', '2005', '2015']].reset_index(drop=True).fillna(0.0)
+    df2 = df1.set_index('Country Name').transpose()
     df2['Years'] = df2.index
-    temp_cols=df2.columns.tolist()
-    new_cols=temp_cols[-1:] + temp_cols[:-1]
-    df2=df2[new_cols]
-    df2=df2.reset_index(drop=True)
-    df2= df2.rename_axis(None, axis=1)
-    return df1,df2    
+    temp_cols = df2.columns.tolist()
+    new_cols = temp_cols[-1:] + temp_cols[:-1]
+    df2 = df2[new_cols]
+    df2 = df2.reset_index(drop = True)
+    df2 = df2.rename_axis(None, axis = 1)
+    return df1, df2    
 
 
 #reading data set name
 filename = "Dataset.csv"
-years=['1965', '1975', '1985', '1995', '2005', '2015']
-Countries=['Cuba', 'Argentina', 'Brazil', 'Finland', 'China', 'India']
+years = ['1965', '1975', '1985', '1995', '2005', '2015']
+Countries = ['Cuba', 'Argentina', 'Brazil', 'Finland', 'China', 'India']
 
 
 #Calling function to create dataframe according to the indicators
